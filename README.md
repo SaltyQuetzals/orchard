@@ -12,7 +12,7 @@ authentication, imports, and integrations are added by later sections.
 
 ## Requirements
 
-- Rust 1.93.1, pinned by `rust-toolchain.toml` (rustup installs it automatically).
+- Rust 1.99.1, pinned by `rust-toolchain.toml` (rustup installs it automatically).
 - SQLite is compiled in through `rusqlite`'s bundled build; no system SQLite package is needed.
 - No Node.js or JavaScript build pipeline.
 

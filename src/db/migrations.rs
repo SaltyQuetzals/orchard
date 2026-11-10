@@ -114,8 +114,7 @@ mod tests {
     use super::*;
 
     fn connection() -> Connection {
-        let conn = Connection::open_in_memory().unwrap();
-        conn
+        Connection::open_in_memory().unwrap()
     }
 
     fn applied(conn: &Connection) -> Vec<(i64, String)> {

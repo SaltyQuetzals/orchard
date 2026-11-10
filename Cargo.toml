@@ -2,8 +2,11 @@
 name = "orchard"
 version = "0.1.0"
 edition = "2024"
-rust-version = "1.93.1"
+rust-version = "1.99.1"
 publish = false
+
+[lints.clippy]
+cognitive_complexity = "warn"
 
 [dependencies]
 aes-gcm = "0.11.1"
