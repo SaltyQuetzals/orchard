@@ -1,0 +1,11 @@
+# Hook runner: prek (https://prek.j178.dev), drop-in compatible with pre-commit.
+# Install the commit shim once per clone: prek install
+repos:
+  - repo: local
+    hooks:
+      - id: clippy
+        name: clippy (warnings are errors)
+        entry: cargo clippy --locked --all-targets -- -D warnings
+        language: system
+        pass_filenames: false
+        always_run: true

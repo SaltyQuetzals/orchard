@@ -26,6 +26,20 @@ cargo test --locked
 Use `--release` for a production binary. The committed `Cargo.lock` is required; do not pass
 `--locked` only after intentionally updating dependencies.
 
+## Git hooks
+
+Commit hooks run through [prek](https://prek.j178.dev), a single-binary,
+`pre-commit`-compatible hook runner (`brew install prek` or `cargo install prek`). Install the
+shim once per clone:
+
+```sh
+prek install
+```
+
+The `clippy` hook in `.pre-commit-config.yaml` runs
+`cargo clippy --locked --all-targets -- -D warnings`, so any warning blocks the commit. Run it
+against the whole tree with `prek run --all-files`; bypass once with `git commit --no-verify`.
+
 ## Credential key
 
 Provider credentials are encrypted with AES-256-GCM using a 32-byte master key. The key lives
