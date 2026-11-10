@@ -52,3 +52,13 @@ pub enum ClearedState {
     Cleared,
     Reconciled,
 }
+
+/// How a ledger entry came to exist. Imported entries are posted immediately;
+/// opening and reconciliation-adjustment entries are explicit system origins.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum TransactionOrigin {
+    Manual,
+    Import,
+    Opening,
+    Adjustment,
+}

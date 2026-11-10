@@ -13,4 +13,6 @@ pub use ids::{
     ScheduleId, SourceId, TransactionId,
 };
 pub use money::Amount;
-pub use types::{AccountKind, BudgetAccountKind, ClearedState, TransactionKind};
+pub use types::{
+    AccountKind, BudgetAccountKind, ClearedState, TransactionKind, TransactionOrigin,
+};

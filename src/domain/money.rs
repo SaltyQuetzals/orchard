@@ -31,6 +31,10 @@ impl Amount {
         self.0 < 0
     }
 
+    pub const fn is_positive(self) -> bool {
+        self.0 > 0
+    }
+
     pub fn checked_add(self, other: Self) -> Result<Self, DomainError> {
         self.0
             .checked_add(other.0)

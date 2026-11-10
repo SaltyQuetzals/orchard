@@ -21,6 +21,11 @@ pub const MIGRATIONS: &[Migration] = &[
         name: "owner-access",
         sql: include_str!("../../migrations/0002_owner_access.sql"),
     },
+    Migration {
+        version: 3,
+        name: "ledger",
+        sql: include_str!("../../migrations/0003_ledger.sql"),
+    },
 ];
 
 pub fn latest_version() -> i64 {
