@@ -6,9 +6,10 @@ evidence. No frontend framework, Node toolchain, hosted database, or application
 is required.
 
 This repository is being implemented from the OpenSpec change
-`add-self-hosted-budgeting`. The current build provides the runtime foundation: HTTP delivery,
-the store, exact money/date types, migrations, and credential-key handling. Financial pages,
-authentication, imports, and integrations are added by later sections.
+`add-self-hosted-budgeting`. The current build provides the runtime foundation (HTTP delivery,
+the store, exact money/date types, migrations, and credential-key handling) and single-owner
+access (host initialization, Argon2id login, server-side sessions, CSRF/origin protection, and
+password recovery). Financial pages, imports, and integrations are added by later sections.
 
 ## Requirements
 
@@ -55,7 +56,21 @@ The file must contain exactly 64 hexadecimal characters (trailing whitespace is 
 it out of backups of `/data` and store it separately: losing it makes stored provider secrets
 unrecoverable, and a wrong key is refused rather than replacing them.
 
-## Run
+## Initialize and run
+
+The server starts without an owner so that public traffic cannot create one. Initialize the
+single owner, USD budget, and timezone once with host access and the server stopped:
+
+```sh
+cargo run --locked -- init \
+  --data-dir ./data \
+  --timezone America/Chicago \
+  --budget-name "Home" \
+  --key-file "$HOME/.config/orchard/credentials.key"
+```
+
+The command prompts twice for a password of at least 12 characters. Repeating it is refused.
+Then start the server:
 
 ```sh
 cargo run --locked -- serve \
@@ -63,6 +78,12 @@ cargo run --locked -- serve \
   --data-dir ./data \
   --key-file "$HOME/.config/orchard/credentials.key"
 ```
+
+Open `http://127.0.0.1:3000/login` for local verification. Session cookies are `Secure` by
+default; add `--insecure-cookies` only for loopback HTTP checks. Behind the public HTTPS
+reverse proxy, pass `--public-url https://budget.example.com` and repeat
+`--trusted-proxy <proxy-ip>` so forwarded client and scheme headers are trusted only from that
+proxy.
 
 `--key-file` may instead come from `ORCHARD_SECRET_KEY_FILE`. The data directory defaults to
 `/data`; the bind address defaults to `127.0.0.1:3000`.
@@ -75,8 +96,13 @@ curl -fsS http://127.0.0.1:3000/health
 The health response is intentionally non-sensitive: it confirms the process opened its store,
 acquired its lock, applied migrations, and verified the credential key.
 
+Sign out from the protected page. To replace a forgotten password, stop the server and run
+`recover` with the same store and key; financial data and provider connections are preserved
+while all sessions and the old password are invalidated.
+
 Stop with Ctrl-C or `SIGTERM`; shutdown is graceful and releases the store lock. See
-[`docs/operations.md`](docs/operations.md) for operational details.
+[`docs/operations.md`](docs/operations.md) for initialization, recovery, reverse-proxy trust,
+session behavior, and operational details.
 
 ## Data layout
 
@@ -105,5 +131,5 @@ The credential key file must not live inside `<data-dir>`.
 
 ## Documentation
 
-- [`docs/operations.md`](docs/operations.md): build, launch, key handling, data, shutdown, and
-  store troubleshooting.
+- [`docs/operations.md`](docs/operations.md): build, owner initialization, login/session and
+  recovery behavior, reverse-proxy trust, key handling, data, shutdown, and troubleshooting.
