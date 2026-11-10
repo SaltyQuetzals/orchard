@@ -1,10 +1,13 @@
 # Orchard operations
 
 Current scope: the runtime foundation (HTTP server, store, migrations, exact types, and
-credential-key handling) plus single-owner access (host initialization, login, server sessions,
-password recovery, and browser request protection). Financial pages, imports, and provider
-integrations arrive in later implementation sections. This document covers everything needed to
-build, initialize, launch, sign in to, maintain, and shut down the current application safely.
+credential-key handling), single-owner access (host initialization, login, server sessions,
+password recovery, and browser request protection), and the account ledger (accounts, opening
+balances, manual entries, splits, linked transfers, reconciliation, import review, and tracking
+valuations). Financial pages, automatic imports, and provider integrations arrive in later
+implementation sections. This document covers everything needed to build, initialize, launch,
+sign in to, maintain, and shut down the current application safely; ledger rules and worked
+examples live in [`ledger.md`](ledger.md).
 
 ## Build
 

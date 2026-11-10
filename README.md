@@ -7,9 +7,11 @@ is required.
 
 This repository is being implemented from the OpenSpec change
 `add-self-hosted-budgeting`. The current build provides the runtime foundation (HTTP delivery,
-the store, exact money/date types, migrations, and credential-key handling) and single-owner
+the store, exact money/date types, migrations, and credential-key handling), single-owner
 access (host initialization, Argon2id login, server-side sessions, CSRF/origin protection, and
-password recovery). Financial pages, imports, and integrations are added by later sections.
+password recovery), and the account ledger (accounts, opening balances, manual entries, splits,
+linked transfers, reconciliation, import review, and tracking valuations). Financial pages,
+automatic imports, and provider integrations are added by later sections.
 
 ## Requirements
 
@@ -133,3 +135,5 @@ The credential key file must not live inside `<data-dir>`.
 
 - [`docs/operations.md`](docs/operations.md): build, owner initialization, login/session and
   recovery behavior, reverse-proxy trust, key handling, data, shutdown, and troubleshooting.
+- [`docs/ledger.md`](docs/ledger.md): account, split, transfer, reconciliation, import-review,
+  and tracking-valuation rules with exact worked balances.
