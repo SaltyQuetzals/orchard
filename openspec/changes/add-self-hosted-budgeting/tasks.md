@@ -1,0 +1,110 @@
+# Tasks
+
+Implementation is not authorized by this planning workflow. Start only after an explicit apply request. All application paths below are relative to `/Users/gabrielbritain/Documents/Programming/orchard/`; create the application directly there, without a nested `orchard/` directory, and preserve the existing `openspec/` planning home and `.omp/` workflow configuration. Follow `design.md` and the eleven capability specs. Do not modify sibling projects or introduce React, a frontend framework, or a Node build pipeline.
+
+## 1. Rust runtime, exact types, and persistence
+
+- [x] 1.1 Create the Rust application with Axum/Tokio, Askama templates, native static assets, pinned toolchain, and committed Cargo lockfile; verify `cargo check --locked` and launch the actual serve command to observe its non-sensitive health response.
+  - Verified: `cargo check --locked` passed. `cargo run --locked -- serve --bind 127.0.0.1:32117` served `GET /health` with HTTP 200, `text/plain; charset=utf-8`, `Cache-Control: no-store`, and body `ok`. Browser verification confirmed the Askama-rendered HTTP 404 page and applied native CSS.
+- [ ] 1.2 Implement the exclusive store lock, ordered migrations, schema-version checks, and bounded blocking `rusqlite` executor in `src/db/`; verify isolated database tests reject simultaneous store ownership, incompatible schemas, and a failed migration without admitting normal writes.
+- [ ] 1.3 Implement checked cent-exact money, typed identifiers/dates, and exhaustive domain/error enums in `src/domain/`; verify tests for $0.10 + $0.20, negative amounts, fractional-cent rejection, and overflow without partial persistence.
+- [ ] 1.4 Implement authenticated encryption for provider secrets and mounted-key loading; verify tampered ciphertext and a missing/wrong key on an existing store fail without replacing credentials or creating a new installation.
+- [ ] 1.5 Document the Rust build/run commands, data layout, single-process SQLite model, and secret-file setup in `README.md` and `docs/operations.md`; verify the documented fresh-store launch and shutdown commands against an isolated directory.
+
+## 2. Single-owner access and browser security
+
+- [ ] 2.1 Add host-only initialization of one owner, one USD budget, and its timezone, plus host-only password recovery; verify repeated initialization is rejected and recovery preserves finances/connections while invalidating the old password and all sessions.
+- [ ] 2.2 Implement Argon2id login, hashed server sessions, expiry, logout, failed-login throttling, and trusted-proxy handling; verify expired/revoked sessions cannot read or mutate financial resources and repeated invalid credentials are limited.
+- [ ] 2.3 Add authentication and session-bound CSRF/origin enforcement to page/action/upload boundaries, local-only post-login return links, and Askama login/error pages; verify unauthenticated financial/evidence requests disclose no private data and cross-origin mutations do not commit.
+- [ ] 2.4 Document owner initialization, offline maintenance locking, recovery, reverse-proxy trust, and session behavior in `docs/operations.md`; verify the documented initialize/recover/login sequence with the running application and replacement credentials.
+
+## 3. Account ledger and owner review
+
+- [ ] 3.1 Implement account creation, opening balances, budget-versus-tracking kinds, and closure rules; verify existing card debt creates no income/payment funding, nonzero budget accounts cannot close, and closed-account history remains available.
+- [ ] 3.2 Implement dated manual income/outflow/refund entries, split allocations, required-category completion, forecasts, and revision-checked edits/deletes; verify allocation sums, future-income exclusion, stale-write rejection, and archived-category historical completion.
+- [ ] 3.3 Implement atomic linked budget transfers, card payments, and budget/tracking boundary transfers; verify editing/removing a transfer affects both legs together, does not duplicate spending, and cannot add a reference amount on top of an investment snapshot.
+- [ ] 3.4 Implement cleared/reconciled states, statement comparison, explicit reconciliation adjustments, and confirmed invalidation after reconciled edits; verify a $10 mismatch is visible and no automatic balancing entry is silently created.
+- [ ] 3.5 Implement source records, import review state, explicit same-account/exact-amount candidate matching, correction proposals, and source tombstones; verify approval does not post again, ambiguous matches require selection, and matched/deleted sources preserve edits and cannot reappear as new entries.
+- [ ] 3.6 Document account, split, transfer, reconciliation, and import-review semantics in `docs/ledger.md`; verify the documented examples with domain-command smoke scenarios and exact resulting balances.
+
+## 4. Envelope budgeting, cards, and savings targets
+
+- [ ] 4.1 Implement ordered category groups/categories, archiving, monthly assignments, moves, and visible negative Ready to Assign; verify the $500 assign/move example and overassignment conserve cents without reopening historically categorized purchases.
+- [ ] 4.2 Implement recognized-resource selection, visible Uncategorized activity, and reservations for future-month assignments; verify future income/tracking values cannot fund today and categorization moves existing activity without charging the purchase twice.
+- [ ] 4.3 Implement deterministic monthly carryover and cash-first funding classification; verify $45 + $20 positive carryover, the $20 cash/$30 credit rollover distinction, and identical mixed-payment results under different import arrival orders.
+- [ ] 4.4 Implement per-card payment categories, funded versus unfunded debt purchases, explicit pre-existing debt funding, and payment shortfalls that remain visible across months; verify a funded $60 purchase/payment and a $100 payment with $70 reserved affect category money and balances exactly once.
+- [ ] 4.5 Implement categorized card refunds, positive card assets, partial debt-generating purchases, and overpayments; verify refunds before/after repayment and a positive $25 card balance used for a $40 purchase satisfy the design's conservation identity without invented income/reserves.
+- [ ] 4.6 Recompute downstream projections after historical amount/date/category/assignment changes and handle multiple-card allocation deterministically; verify prior-month edits propagate once and conservation holds across a seeded multi-month history with both payment types.
+- [ ] 4.7 Implement dated-balance and recurring monthly-contribution targets with exact-cent suggested contributions and distinct progress measures; verify the $100-to-$400 three-month target, deterministic cent remainders without automatic assignments, and $100 carryover plus $30 assigned minus $20 spent yielding $110 available while monthly-contribution progress stays $30 of $50 with $20 needed.
+- [ ] 4.8 Document budget rules, current deficits, card-payment funding, future reservations, both target-progress measures/examples, and differences from exact YNAB parity in `docs/budgeting.md`; verify each numerical example against the projection results and distinguish cash/credit/payment-shortfall actions without relying on color.
+
+## 5. Durable receipt evidence and independent completion
+
+- [ ] 5.1 Implement streaming, bounded image/PDF intake and immutable hash-addressed originals with file sync/rename before metadata linkage; verify oversized/unsupported/path-traversal submissions are rejected and an interrupted persistence attempt leaves no completed receipt link.
+- [ ] 5.2 Implement the evidence inbox, source-item uniqueness, explicit purchase linking, shared evidence links, and unlinking; verify repeated delivery/linking creates one logical item/link and removing one shared link preserves the other purchase's original.
+- [ ] 5.3 Implement independent category/receipt work derivation and unavailable-receipt explanations with reopening/replacement; verify attaching evidence leaves category work, categorizing leaves receipt work, and a retained nonblank unavailable explanation resolves only receipt chasing.
+- [ ] 5.4 Implement original EML/MIME preservation, safe body previews, authenticated downloads, restrictive content headers, and attachment handling; verify a body-only email is usable evidence and malicious HTML/remote images cannot execute or load from its preview.
+- [ ] 5.5 Document receipt statuses, supported types/limits, shared links, original-email handling, and directory durability in `docs/receipts.md`; verify receipt examples against stored original hashes and derived purchase status.
+
+## 6. Durable jobs and calendar schedules
+
+- [ ] 6.1 Implement persisted due jobs, expiring leases, last-attempt/success/errors, graceful shutdown, and the explicit jobs-enabled state; verify restart reclaims interrupted work and a restored/paused installation performs no provider calls or deliveries.
+- [ ] 6.2 Implement recurrence templates and pause/resume/end semantics for income, outflow, splits, and transfers; verify January 31 advances to February's last day then March 31, February 29 yearly anchors recover on leap years, and DST cannot duplicate a due local date.
+- [ ] 6.3 Implement upcoming previews and atomic unique due-date materialization, including missed dates; verify future salary contributes no actual money and two worker runs after three missed daily dates produce one occurrence per date with no half-transfer.
+- [ ] 6.4 Preserve posted occurrence identity through template edits, manual deletion, and provider matching; verify future template amount changes leave posted history intact and removed/matched occurrences are never recreated by the worker.
+- [ ] 6.5 Document scheduling, recognition dates, downtime catch-up, worker status, and pause/activation in `docs/schedules.md` and `docs/operations.md`; verify the documented preview-to-due-entry and restart sequences with a controlled clock.
+
+## 7. SimpleFIN financial synchronization
+
+- [ ] 7.1 Implement secure Bridge token claiming, encrypted connection storage, origin/address restrictions, HTTPS verification, sanitized errors, and local disconnect; verify unsafe/private destinations make no request and a rejected claim reports possible prior use without exposing credentials.
+- [ ] 7.2 Implement typed v2 response normalization, account mapping, sign/currency checks, source identity, and separate bank/card balance snapshots versus investment valuations; verify non-USD/unmapped accounts stay out of the budget, pending activity is excluded, and stale investment snapshots do not replace newer values.
+- [ ] 7.3 Implement selected-history import and the new-account opening anchor, then bind posted source rows atomically to ledger entries/progress; verify a $1,000 snapshot with +$200 selected activity produces an $800 anchor and a $1,000 register, including repeated overlapping fetches and interrupted batches.
+- [ ] 7.4 Implement explicit reconnection mapping, historical match review, deleted-source protection, and provider correction review; verify changed external IDs do not silently duplicate the existing register or overwrite owner-edited/reconciled purchases.
+- [ ] 7.5 Schedule daily refresh and bounded catch-up with the shared provider quota gate, at-most-90-day windows, recent overlap, and manual-refresh status; verify simulated quota limits/downtime produce bounded requests and preserve manual bookkeeping during provider failures.
+- [ ] 7.6 Implement connection/institution/account error and freshness views distinguishing fetch success from balance as-of time; verify a partial Chase-success/Fidelity-error response updates only valid data and shows the required reconnect action.
+- [ ] 7.7 Document Bridge setup, subscription dependency, mapping/opening-balance behavior, history/quota limits, reconnect/revocation, and the seven-institution acceptance checklist in `docs/simplefin.md`; verify the documented setup against the actual supported response shape without claiming a live institution check from fixtures.
+
+## 8. Gmail receipt collection through a mail strategy
+
+- [ ] 8.1 Define the narrow Rust mail strategy boundary and implement Gmail OAuth authorization, encrypted refresh credentials, label selection, consent disclosure, and disconnect; verify mismatched/expired authorization state cannot replace a connection and disconnect preserves evidence.
+- [ ] 8.2 Implement paginated selected-label scans, original raw-message retrieval, base64url decoding, and mailbox/message identity deduplication; verify messages outside the label are not fetched and an old message labeled later is collected without depending on unread state or chasing date.
+- [ ] 8.3 Persist bounded scan progress and per-message errors with durable evidence intake; verify a restart after object storage reuses the original and a failed message remains actionable without losing successful messages or falsely reporting a complete scan.
+- [ ] 8.4 Integrate body-only and attachment emails with the shared receipt inbox and explicit linkage; verify linking changes only receipt completion, original EML survives source deletion, and revoked OAuth leaves existing evidence usable.
+- [ ] 8.5 Document Gmail API/OAuth consent setup, callback URL, actual read-only scope, label selection, expiry/reconnect, original-message limits, and receipt review in `docs/mail.md`; verify the setup procedure with an owner-authorized mailbox during integration acceptance, not by treating a test stub as a real connection.
+
+## 9. Telegram pairing and transaction chasing
+
+- [ ] 9.1 Implement encrypted bot configuration, single-use private-chat pairing, sender/chat checks, pairing generations, and durable long-poll update acknowledgement; verify unauthorized/copied/expired actions cannot read or mutate finances and committed updates are not reapplied after restart.
+- [ ] 9.2 Implement the inclusive chasing date, shared outstanding-work query, discovery intents, and one local-day consolidated reminder; verify old imports stay available without chasing, future entries are excluded, the boundary date is inclusive, and fully resolved work generates no reminder.
+- [ ] 9.3 Implement short opaque callback handles, paginated active-category selection for unsplit outflows, revision checks, and authenticated links for splits; verify chat categorization updates the same budget and stale or archived-category actions cannot overwrite newer edits.
+- [ ] 9.4 Implement reply-associated image/PDF receipt download plus unlinked-inbox handling; verify duplicate updates attach once, unknown transaction association requires selection, and failed/oversized downloads leave receipt work unresolved.
+- [ ] 9.5 Implement notification outbox identity, acknowledged/failed/uncertain delivery state, re-pair invalidation, and current-state daily summaries after downtime; verify ordinary repeats do not resend acknowledged notices, unavailable explanations stop only receipt asks, and uncertain sends are visible without an exactly-once claim.
+- [ ] 9.6 Document bot setup, privacy, pairing, chasing date/time, receipt association, Telegram compression/download limits, and outage behavior in `docs/telegram.md`; verify the owner can follow the documented category/receipt round trip in a real private chat during integration acceptance.
+
+## 10. Financial reports and drill-downs
+
+- [ ] 10.1 Implement date-filtered category/group spending and income queries with splits, refunds, Uncategorized, and explicit non-income/transfer exclusions; verify the $60/$40 split and $15 refund example reports $45/$40 and card payments/openings add no consumption spending.
+- [ ] 10.2 Implement ledger balance histories and snapshot-based investment/net-worth histories with freshness and missing-coverage labels; verify $1,000 cash minus $200 card debt plus $5,000 investment equals $5,800, with no duplicate investment-transfer value or backdated future snapshot.
+- [ ] 10.3 Implement drill-down selectors sharing the same financial inclusion rules as totals; verify recategorizing a $25 purchase moves exactly $25 between groups without changing total spending or account balance.
+- [ ] 10.4 Document report inclusion/exclusion rules, budget-boundary transfers, valuation dates, incomplete history, signed spending bars, observation-aware net-worth charts, and matching table/drill-down behavior in `docs/reports.md`; verify the documented totals against the report examples and linked underlying entries, including negative net spending and stale/missing investment coverage.
+
+## 11. Server-rendered workflows, responsive CSS, and PWA
+
+- [ ] 11.1 Complete authenticated Askama pages and native form actions for registers, import review/matching, split/transfer/reconciliation edits, monthly assignments/targets, schedules, reports, evidence inbox, outstanding work, and integration settings; implement required inline SVG category/group spending bars, dated net-worth history charts, and both target-progress variants with matching accessible supporting tables from the same typed view data. Verify each core workflow with JavaScript disabled, meaningful validation/conflict responses, exact chart/table/drill-down agreement, signed refunds, observation-versus-carried-forward valuations, and explicit empty/incomplete history states.
+- [ ] 11.2 Implement modern responsive CSS and accessible keyboard/labeled controls, plus only the necessary vanilla-JS enhancements; verify phone and desktop budgeting, required spending/net-worth/target visualizations, native chart filters and drill-downs, split edits, and camera/file receipt capture on the actual pages with JavaScript disabled. Confirm exact Ready to Assign/availability stays primary and cash/credit/payment-shortfall labels, negative values, freshness/coverage, and target measures remain readable and navigable without hover or color alone; do not add a frontend or charting framework.
+- [ ] 11.3 Add the manifest, install icons, static-only service worker, no-store financial responses, and non-sensitive offline fallback; verify installation on a supporting browser, failed offline submissions do not queue, and logout/back-navigation/offline reopening reveal no former-session financial pages or evidence.
+- [ ] 11.4 Document online-only/PWA behavior, supported installation and receipt-capture paths, required chart/table accessibility, native filtering/drill-downs, and the framework-free server-rendered SVG approach in `docs/web.md`; verify the documented phone and desktop flows against the actual rendered surface with JavaScript disabled, including private chart delivery after logout/offline reopening.
+
+## 12. Homeserver deployment, backup, and restore
+
+- [ ] 12.1 Provide a reproducible non-root release image and Compose service with persistent SQLite/evidence and a separate mounted secret, restricted to the HTTPS reverse proxy; verify actual container startup on the target architecture and recreation preserves financial/evidence data.
+- [ ] 12.2 Implement the locked offline backup command using a SQLite backup plus referenced evidence objects and a versioned integrity manifest; verify draining an in-flight upload before backup produces either both its committed link/original or neither, and a live-store backup attempt is refused.
+- [ ] 12.3 Implement isolated restore compatibility/integrity/path checks, session invalidation, paused external jobs, and explicit notification rebaseline/activation; verify corrupted/missing evidence and path escapes fail before activation, while a valid restore recovers exact balances, originals, links, schedules, and decryptable provider settings without external calls.
+- [ ] 12.4 Complete deployment, key custody, encrypted off-host backup, migration, restore-based rollback, stalled-job diagnosis, and outage procedures in `docs/operations.md`; verify the documented stop-backup-start and isolated restore/rollback commands with the real container image and protected temporary stores.
+
+## 13. End-to-end release acceptance
+
+- [ ] 13.1 With the owner's authorization, prove actual balance and posted-transaction access for their Frost Bank, CIT Bank, Chase, and Capital One accounts and dated investment valuations for Vanguard, Charles Schwab, and Fidelity; record each account's observed sign/currency/freshness and treat any unavailable required data as an unresolved release blocker rather than substituting manual entry or a directory listing.
+- [ ] 13.2 Exercise a real newly discovered purchase through Telegram category selection, web/PWA receipt attachment, and a body-only Gmail receipt; verify all channels converge on the same ledger/evidence state and the next consolidated daily follow-up contains only genuinely outstanding work from the inclusive start date.
+- [ ] 13.3 Exercise a homeserver restart, one scheduled financial refresh and reminder, a provider outage with continued manual budgeting, and an encrypted off-host backup followed by isolated restore; verify exact financial totals/original evidence, paused restored jobs, and explicit safe reactivation.
+- [ ] 13.4 Run the completed Rust application's focused contract checks, locked build, and actual mobile/desktop/no-JS/PWA acceptance paths; verify every named capability scenario is covered by a relevant existing contract test or recorded real-system acceptance result, without replacing live integration checks with mocks. Treat spending bars, net-worth history charts, and both target-progress variants as required release gates: prove exact chart/table/drill-down agreement, negative refund bars, stale versus missing valuations without invented history, contribution-versus-balance progress, distinct budget deficits, keyboard/native filter navigation, no-hover/no-color-only comprehension, responsive no-JS rendering, and private logout/offline behavior. Tables alone do not satisfy visualization acceptance.
