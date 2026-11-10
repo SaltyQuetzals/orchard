@@ -1,6 +1,7 @@
 //! Orchard: a self-hosted, single-owner envelope-budgeting application.
 
 pub mod auth;
+pub mod budget;
 pub mod cli;
 pub mod db;
 pub mod domain;

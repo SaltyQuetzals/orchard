@@ -4,6 +4,7 @@ mod date;
 mod error;
 mod ids;
 mod money;
+mod month;
 mod types;
 
 pub use date::BudgetDate;
@@ -13,6 +14,7 @@ pub use ids::{
     ScheduleId, SourceId, TransactionId,
 };
 pub use money::Amount;
+pub use month::BudgetMonth;
 pub use types::{
     AccountKind, BudgetAccountKind, ClearedState, TransactionKind, TransactionOrigin,
 };

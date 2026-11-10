@@ -15,6 +15,8 @@ pub enum DomainError {
     AmountOverflow,
     /// The input is not a valid `YYYY-MM-DD` calendar date.
     InvalidDate { input: String },
+    /// The input is not a valid `YYYY-MM` budget month.
+    InvalidMonth { input: String },
     /// The input is not a valid numeric identifier.
     InvalidIdentifier { kind: &'static str, input: String },
 }
@@ -31,6 +33,10 @@ impl fmt::Display for DomainError {
                 "invalid amount `{input}`: USD amounts support at most two fractional digits"
             ),
             Self::AmountOverflow => f.write_str("amount exceeds the supported range"),
+            Self::InvalidMonth { input } => write!(
+                f,
+                "invalid month `{input}`: expected a calendar month as `YYYY-MM`"
+            ),
             Self::InvalidDate { input } => {
                 write!(
                     f,
