@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} · Orchard{% endblock %}
+
+{% block content %}
+      <p class="brand">Orchard</p>
+      <h1>{{ title }}</h1>
+      <p>{{ message }}</p>
+      {% if show_login %}
+      <p><a href="/login">Sign in</a></p>
+      {% endif %}
+{% endblock %}

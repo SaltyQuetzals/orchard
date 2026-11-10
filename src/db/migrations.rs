@@ -10,11 +10,18 @@ pub struct Migration {
     pub sql: &'static str,
 }
 
-pub const MIGRATIONS: &[Migration] = &[Migration {
-    version: 1,
-    name: "initial",
-    sql: include_str!("../../migrations/0001_initial.sql"),
-}];
+pub const MIGRATIONS: &[Migration] = &[
+    Migration {
+        version: 1,
+        name: "initial",
+        sql: include_str!("../../migrations/0001_initial.sql"),
+    },
+    Migration {
+        version: 2,
+        name: "owner-access",
+        sql: include_str!("../../migrations/0002_owner_access.sql"),
+    },
+];
 
 pub fn latest_version() -> i64 {
     MIGRATIONS
@@ -141,10 +148,14 @@ mod tests {
     #[test]
     fn applies_only_pending_migrations() {
         let mut conn = connection();
+        let expected: Vec<(i64, String)> = MIGRATIONS
+            .iter()
+            .map(|migration| (migration.version, migration.name.to_owned()))
+            .collect();
         migrate(&mut conn, MIGRATIONS).unwrap();
-        assert_eq!(applied(&conn), vec![(1, "initial".to_owned())]);
+        assert_eq!(applied(&conn), expected);
         migrate(&mut conn, MIGRATIONS).unwrap();
-        assert_eq!(applied(&conn), vec![(1, "initial".to_owned())]);
+        assert_eq!(applied(&conn), expected);
     }
 
     #[test]
@@ -196,8 +207,8 @@ mod tests {
             migrate(&mut conn, MIGRATIONS),
             Err(StoreError::SchemaTooNew {
                 found: 99,
-                supported: 1
-            })
+                supported
+            }) if supported == latest_version()
         ));
         assert_eq!(applied(&conn), vec![(99, "future".to_owned())]);
     }

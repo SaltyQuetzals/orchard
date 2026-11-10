@@ -21,3 +21,40 @@ main {
 h1 {
   line-height: 1.2;
 }
+
+form {
+  display: grid;
+  gap: 0.75rem;
+  margin-block-start: 1.5rem;
+  max-inline-size: 24rem;
+}
+
+label {
+  font-weight: 600;
+}
+
+input,
+button {
+  font: inherit;
+  padding: 0.6rem 0.75rem;
+}
+
+button {
+  cursor: pointer;
+  justify-self: start;
+}
+
+.error {
+  border-inline-start: 0.35rem solid currentColor;
+  padding-inline-start: 0.75rem;
+  font-weight: 600;
+}
+
+.help {
+  color: GrayText;
+  font-size: 0.9rem;
+}
+
+a {
+  color: inherit;
+}

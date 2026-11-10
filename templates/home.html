@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}{{ budget_name }} · Orchard{% endblock %}
+
+{% block content %}
+      <p class="brand">Orchard</p>
+      <h1>{{ budget_name }}</h1>
+      <p>{{ currency }} budget · {{ timezone }}</p>
+      <p>Your financial workspace is available only through this authenticated session.</p>
+      <form method="post" action="/logout">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button type="submit">Sign out</button>
+      </form>
+{% endblock %}
